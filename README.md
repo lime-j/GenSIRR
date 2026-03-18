@@ -1,5 +1,7 @@
-# GenSIRR
-[CVPR 2026] Rectifying Latent Space for Generative Single-Image Reflection Removal
+# Rectifying Latent Space for Generative Single-Image Reflection Removal
 
+We will organize the testing code here in the next few days.
 
-We will release the testing code here. Training pipeline will be available in https://github.com/hainuo-wang/XReflection
+Model can be download from [lime-j/GenSIRR](https://huggingface.co/lime-j/GenSIRR)
+
+Training pipeline will be available in https://github.com/hainuo-wang/XReflection
