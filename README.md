@@ -212,6 +212,10 @@ python user_study/analyze_user_study.py
 This aggregates the raw label files under `user_study/raw_user_study_results/`
 and reports per-method success and failure rates.
 
+## Acknowledgement 
+
+The author would like to express their gratitude to Google TPU Research Cloud (TRC) for their generous donation of computational resources.
+
 ## Citation
 
 If you use this code or checkpoint, please cite:
