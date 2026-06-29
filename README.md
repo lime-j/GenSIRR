@@ -210,7 +210,7 @@ python user_study/analyze_user_study.py
 ```
 
 This aggregates the raw label files under `user_study/raw_user_study_results/`
-and reports per-method success and failure rates.
+and reports per-method success and failure rates. During our experiments, we realized that human judgment is more reliable than PSNR in some way. Thus, we released the Gradio board we used for the user study. A VLM-based scoring system may be helpful in the future.
 
 ## Acknowledgement 
 
