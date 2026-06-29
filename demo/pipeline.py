@@ -25,6 +25,7 @@ else:
     XLA_AVAILABLE = False
 
 logger = logging.get_logger(__name__)
+DEMO_DIR = Path(__file__).resolve().parent
 
 PREFERRED_KONTEXT_RESOLUTIONS = [
     (672, 1568), (688, 1504), (720, 1456), (752, 1392), (800, 1328),
@@ -36,13 +37,12 @@ PREFERRED_KONTEXT_RESOLUTIONS = [
 
 def _resolve_vae_path(user_path: Optional[str] = None) -> str:
     """Resolve where to load the VAE weights from."""
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = Path(__file__).resolve().parents[1]
     candidates = [
         user_path,
         os.environ.get("FLUX_VAE_PATH"),
         os.environ.get("VAE_PATH"),
         repo_root / "vae_merged",
-        "/home/s1023244038/XReflection/vae_merged",
     ]
 
     for candidate in candidates:
@@ -125,9 +125,9 @@ class GenSIRR(nn.Module):
         self.interrupt = False
         self.tokenizer_max_length = pipe.tokenizer_max_length
         self.transformer.enable_gradient_checkpointing()
-        self.cached_prompt_embeds = torch.nn.Parameter(torch.load("prompt_embeds.pth", map_location='cpu'))
-        self.cached_pooled_prompt_embeds = torch.nn.Parameter(torch.load("pooled_prompt_embeds.pth", map_location='cpu'))
-        self.cached_text_ids = torch.nn.Parameter(torch.load("text_ids.pth", map_location='cpu'))
+        self.cached_prompt_embeds = torch.nn.Parameter(torch.load(DEMO_DIR / "prompt_embeds.pth", map_location='cpu'))
+        self.cached_pooled_prompt_embeds = torch.nn.Parameter(torch.load(DEMO_DIR / "pooled_prompt_embeds.pth", map_location='cpu'))
+        self.cached_text_ids = torch.nn.Parameter(torch.load(DEMO_DIR / "text_ids.pth", map_location='cpu'))
         del pipe
     @staticmethod
     # Copied from diffusers.pipelines.flux.pipeline_flux.FluxPipeline._prepare_latent_image_ids
@@ -601,18 +601,3 @@ class GenSIRR(nn.Module):
                 self.dtype,
             )
         return images_tokens, images_ids
-
-if __name__ == "__main__":
-    with torch.no_grad():
-        from PIL import Image
-        opt = {
-            "model": "/home/s1023244038/kontext/",
-        }
-        model = FluxModel(opt)
-        
-        image = Image.open("/home/s1023244038/sirs/test/Nature/blended/1_143.jpg")
-        prompt = ""
-        prompt_2 = ""
-        out = model(image=image, prompt=prompt, prompt_2=prompt_2)
-        
-        out[0].save("output.png")

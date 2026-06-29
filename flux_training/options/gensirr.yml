@@ -1,0 +1,189 @@
+# GenSIRR FLUX/Kontext training config.
+# Edit all /path/to/... placeholders before launching training.
+
+# general settings
+name: train_flux_v2_lora_pure
+model_type: FluxModel
+num_gpu: 8
+manual_seed: 42
+
+# command line options integrated into config
+test_only: false
+precision: bf16
+accelerator: gpu
+val_check_interval: 1.0
+log_every_n_steps: 50
+
+# Lightning specific settings
+lightning:
+  max_epochs: 100
+  gradient_clip_val: null
+  accumulate_grad_batches: 1
+  deterministic: false
+  strategy: deepspeed_stage_2
+  num_sanity_val_steps: 1
+
+# checkpoint settings
+checkpoint:
+  monitor: metrics/average/psnr
+  mode: max
+  save_top_k: 1
+  save_last: true
+
+# dataset and data loader settings
+# Prepare sirs/ with:
+#   wget https://checkpoints.mingjia.li/sirs.zip && unzip sirs.zip
+# Prepare RRW with:
+#   https://checkpoints.mingjia.li/rrw.7z
+#   or https://huggingface.co/datasets/zhuyr/RRW
+# then run `python preprocess_rrw.py` from flux_training/.
+datasets:
+  train:
+    name: general-dataset
+    type: FusionDataset
+
+    fused_datasets:
+      - name: real-dataset
+        ratio: 0.2
+        type: DSRTestDataset
+        datadir: /path/to/sirs/train/real
+        enable_transforms: true
+        transform_size: 512
+
+      - name: nature-dataset
+        ratio: 0.1
+        type: DSRTestDataset
+        datadir: /path/to/sirs/train/nature
+        enable_transforms: true
+        transform_size: 512
+
+      - name: syn-dataset
+        ratio: 0.4
+        type: DSRDataset
+        datadir: /path/to/sirs/train/VOCdevkit/VOC2012/PNGImages
+        fns: /path/to/sirs/train/VOC2012_224_train_png.txt
+        size: null
+        enable_transforms: true
+        transform_size: 512
+
+      - name: rrw-dataset
+        ratio: 0.3
+        type: DSRTestDataset
+        datadir: /path/to/sirs/train/rrw
+        enable_transforms: true
+        transform_size: 512
+
+    io_backend:
+      type: disk
+
+    use_shuffle: true
+    num_worker_per_gpu: 1
+    batch_size_per_gpu: 4
+    dataset_enlarge_ratio: 1
+    prefetch_mode: null
+
+  val_datasets:
+    - name: Real20
+      type: DSRTestDataset
+      mode: eval
+      datadir: /path/to/sirs/test/real20_420
+      io_backend:
+        type: disk
+      use_shuffle: false
+      num_worker_per_gpu: 4
+      batch_size_per_gpu: 1
+
+    - name: SIR2-Objects
+      type: DSRTestDataset
+      mode: eval
+      datadir: /path/to/sirs/test/SIR2/SolidObjectDataset
+      io_backend:
+        type: disk
+      use_shuffle: false
+      num_worker_per_gpu: 4
+      batch_size_per_gpu: 1
+
+    - name: SIR2-PostCard
+      type: DSRTestDataset
+      mode: eval
+      datadir: /path/to/sirs/test/SIR2/PostcardDataset
+      io_backend:
+        type: disk
+      use_shuffle: false
+      num_worker_per_gpu: 4
+      batch_size_per_gpu: 1
+
+    - name: SIR2-Wild
+      type: DSRTestDataset
+      mode: eval
+      datadir: /path/to/sirs/test/SIR2/WildSceneDataset
+      io_backend:
+        type: disk
+      use_shuffle: false
+      num_worker_per_gpu: 4
+      batch_size_per_gpu: 1
+
+    - name: Nature
+      type: DSRTestDataset
+      mode: eval
+      datadir: /path/to/sirs/test/Nature
+      io_backend:
+        type: disk
+      use_shuffle: false
+      num_worker_per_gpu: 4
+      batch_size_per_gpu: 1
+
+# network structures
+network_g:
+  type: FluxKontext
+  model_path: /path/to/FLUX.1-Kontext-dev
+  vae_path: lime-j/GenSIRR-vae
+  train_dit: true
+
+# path
+path:
+  pretrain_network_g: null
+  param_key_g: params
+  strict_load_g: true
+  resume_state: null
+  experiments_root: experiments
+  visualization: null
+  log: null
+
+# training settings
+train:
+  optim_g:
+    type: FusedAdamW
+    dit_lr: 1e-5
+    betas: [0.9, 0.99]
+    weight_decay: 1e-2
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [20, 40, 60, 80, 100]
+    gamma: 0.5
+
+  kontext_opt:
+    type: MSELoss
+    loss_weight: 1.0
+    reduction: mean
+
+# validation settings
+val:
+  save_img: true
+  save_img_top_n: 5
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+    ssim:
+      type: calculate_ssim
+
+# logging settings
+logger:
+  tensorboard:
+    flush_secs: 5
+    max_queue: 10
+  wandb:
+    enable: false
+    project: xreflection

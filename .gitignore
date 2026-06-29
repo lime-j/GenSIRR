@@ -1,0 +1,44 @@
+# OS/editor files
+.DS_Store
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Build outputs
+build/
+dist/
+docs/_build/
+
+# Experiment/runtime outputs
+experiments/
+logs/
+wandb/
+lightning_logs/
+inference_results/
+outputs/
+checkpoints/
+
+# Local model/data paths
+vae_merged/
+flux_vae.safetensors
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# Keep required small demo embeddings in the release.
+!demo/prompt_embeds.pth
+!demo/pooled_prompt_embeds.pth
+!demo/text_ids.pth
