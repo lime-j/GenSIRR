@@ -124,7 +124,7 @@ Thanks [@krantbrity](https://github.com/krantbrity) for this awesome script!
 ## FLUX Training and Inference
 
 The FLUX training code lives in `flux_training/` and uses Lightning with
-DeepSpeed. A public template config is provided at:
+DeepSpeed. Please note that we need 8 devices for deepspeed zero-3 to shard the model and grad, each of which should have 80gb vram. I have tested 4*48gb device and it don't work even with cpu offload. A public template config is provided at:
 
 ```text
 flux_training/options/gensirr.yml
