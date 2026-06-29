@@ -110,6 +110,7 @@ cd flux_training
 python preprocess_rrw.py
 ```
 
+
 The script copies paired RRW images into:
 
 ```text
@@ -117,6 +118,8 @@ sirs/train/rrw/
   blended/
   transmission_layer/
 ```
+
+Thanks [@krantbrity](https://github.com/krantbrity) for this awesome script!
 
 ## FLUX Training and Inference
 
@@ -174,7 +177,7 @@ export GENSIRR_EMBEDDING_DIR=/path/to/embedding_files
 ## VAE Training
 
 `vae_training/` contains the VAE training code used for the
-reflection-equivariant latent-space rectification stage.
+reflection-equivariant latent-space rectification stage. The original training is conducted with Google TPU v4-64, thanks to Google TRC's generous donation. We use [PD-12M](https://huggingface.co/datasets/Spawning/pd12m-full), a high-quality image dataset, as the training set. 
 
 Main files:
 
